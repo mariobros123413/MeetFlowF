@@ -5,10 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import go from 'gojs';
 
-const Posts: React.FC = () =>{
+const Posts: React.FC = () => {
   const navigate = useNavigate()
   const socket = io('http://localhost:3001/reunion');
-  
+
   const [password, setPassword] = useState('');
 
   // Estado para controlar el valor del campo de entrada
@@ -38,8 +38,12 @@ const Posts: React.FC = () =>{
         // console.log('Reunión creada:', data.diagrama);
         // Cerrar el modal después de crear la reunión
         closeModal();
+        console.log('datos obtenidos del backend para unirse a reunion : ',data.reunion.id);
+
         // Redirige a la página de reunión con el ID y el código
-        navigate(`/reunion/${data.reunion.id}/${data.reunion.codigo}`);
+        navigate(`/reunion/${data.reunion.id}/${data.codigo}`, {
+          state: {  diagramaModel: '',tipo : 'nueva' },
+        });
       });
     } catch (error) {
       // Manejar errores, por ejemplo, mostrar un mensaje al usuario
@@ -63,15 +67,15 @@ const Posts: React.FC = () =>{
 
         // Manejar la respuesta del servidor cuando se entra en la reunión
         socket.on('unirseReunionExitoso', (data) => {
-          console.log('data.codigo : ',data.codigo);
-          const diagramaData = JSON.parse(data.diagrama.contenido);
-          const diagramaModel = new go.GraphLinksModel(diagramaData.nodeDataArray, diagramaData.linkDataArray);
-          console.log('diagramaData : ', diagramaData)
+          console.log('data.diagrama.contenido : ', data.diagrama.contenido);
+
+          // const diagramaData = JSON.parse(data.diagrama.contenido);
+
           // Redirigir a la página de reunión con el ID y el código
-          navigate(`/reunion/${data.id}/${data.codigo}`);
-          // navigate(`/reunion/${data.id}/${data.codigo}?reunionId=${data.id}`, {
-          //   state: { diagramaModel: diagramaModel }
-          // });
+          // navigate(`/reunion/${data.id}/${data.codigo}`); //antes estaba on
+          navigate(`/reunion/${data.id}/${data.codigo}`, {
+            state: { diagramaModel: data.diagrama.contenido, tipo : 'unirse' },
+          });
         });
       } catch (error) {
         // Manejar errores, por ejemplo, mostrar un mensaje al usuario
@@ -103,20 +107,20 @@ const Posts: React.FC = () =>{
           <button onClick={openModal}>Iniciar una reunión</button>
           <div>
             <input
-            type="text"
-            placeholder="Código de reunión"
-            value={codigoReunion}
-            onChange={(e) => setCodigoReunion(e.target.value)}
-           />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button onClick={handleEntrarClick}>Entrar</button>
+              type="text"
+              placeholder="Código de reunión"
+              value={codigoReunion}
+              onChange={(e) => setCodigoReunion(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button onClick={handleEntrarClick}>Entrar</button>
           </div>
-          
+
         </section>
       </main>
       {/* Modal */}
