@@ -27,8 +27,8 @@ const Topbar: React.FC = () => {
             </Link>
           </li>
           <li className="topListItem">
-            <Link className="link, topListItem" to="/write">
-              Tus Pizarras
+            <Link className="link, topListItem" to="/diagramas">
+              Tus Diagramas
             </Link>
           </li>
           <li className="topListItem">Sobre Mí</li>

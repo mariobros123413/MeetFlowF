@@ -4,8 +4,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import go from 'gojs';
-
+import { useUserContext } from "../../UserContext";
 const Posts: React.FC = () => {
+  const { authenticated, user, logout } = useUserContext();
+  const token: string | null = localStorage.getItem('token');
+
   const navigate = useNavigate()
   const socket = io('http://localhost:3001/reunion');
 
@@ -25,26 +28,36 @@ const Posts: React.FC = () => {
 
     try {
       // Emitir un evento 'crearReunion' con los detalles de la reunión al servidor
-      socket.emit('crearReunion', {
-        usuarioId: 11,
-        titulo: meetingDetails.name,
-        descripcion: meetingDetails.description,
-        codigoReunion: codigoReunion,
-      });
-      console.log('Reunión creando:');
+      console.log('user.id : ', user.id)
+      if (user.id === null || user.id === undefined) {
+        logout();
+        localStorage.removeItem('token'); // Borra el token del Local Storage
+        localStorage.removeItem('userData'); // Borra los datos del usuario del Local Storage
+        navigate('/'); // Redirige a la página de inicio        navigate('/login');
+      } else {
 
-      // Manejar la respuesta del servidor cuando se crea la reunión
-      socket.on('reunionCreada', (data) => {
-        // console.log('Reunión creada:', data.diagrama);
-        // Cerrar el modal después de crear la reunión
-        closeModal();
-        console.log('datos obtenidos del backend para unirse a reunion : ',data.reunion.id);
-
-        // Redirige a la página de reunión con el ID y el código
-        navigate(`/reunion/${data.reunion.id}/${data.codigo}`, {
-          state: {  diagramaModel: '',tipo : 'nueva' },
+        socket.emit('crearReunion', {
+          usuarioId: user.id,
+          titulo: meetingDetails.name,
+          descripcion: meetingDetails.description,
+          codigoReunion: codigoReunion,
         });
-      });
+        console.log('Reunión creando:');
+
+        // Manejar la respuesta del servidor cuando se crea la reunión
+        socket.on('reunionCreada', (data) => {
+          // console.log('Reunión creada:', data.diagrama);
+          console.log('Reunión creando2: ', data);
+          closeModal();
+          console.log('datos obtenidos del backend para unirse a reunion : ', data.reunion.id);
+
+          // Redirige a la página de reunión con el ID y el código
+          navigate(`/reunion/${data.reunion.id}/${data.codigo}`, {
+            state: { diagramaModel: '', tipo: 'nueva', password: data.reunion.password, usuarioId: data.usuarioId },
+          });
+        });
+      }
+
     } catch (error) {
       // Manejar errores, por ejemplo, mostrar un mensaje al usuario
       console.error('Error al crear la reunión:', error);
@@ -64,7 +77,7 @@ const Posts: React.FC = () => {
       try {
         // Emitir un evento 'entrarReunion' con el código y contraseña al servidor
         socket.emit('unirseReunion', { codigoReunion, password });
-
+        console.log(user);
         // Manejar la respuesta del servidor cuando se entra en la reunión
         socket.on('unirseReunionExitoso', (data) => {
           console.log('data.diagrama.contenido : ', data.diagrama.contenido);
@@ -74,7 +87,7 @@ const Posts: React.FC = () => {
           // Redirigir a la página de reunión con el ID y el código
           // navigate(`/reunion/${data.id}/${data.codigo}`); //antes estaba on
           navigate(`/reunion/${data.id}/${data.codigo}`, {
-            state: { diagramaModel: data.diagrama.contenido, tipo : 'unirse' },
+            state: { diagramaModel: data.diagrama.contenido, tipo: 'unirse' },
           });
         });
       } catch (error) {

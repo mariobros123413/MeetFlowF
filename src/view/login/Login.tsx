@@ -19,12 +19,22 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       const response = await api.post('/user/login', formData); // Ruta del backend para el inicio de sesión
-      console.log('Inicio de sesión correctamente:', response.data);
+      console.log('Inicio de sesión correctamente:',response.data.user.token);
 
       login(response.data); // Guardamos los datos del usuario
+      login({
+        token: response.data.user.token,
+        id: response.data.user.usuario.id,
+        ci: response.data.user.usuario.ci,
+        nombre: response.data.user.usuario.nombre,
+        apellido: response.data.user.usuario.apellido,
+        // ...otros campos del usuario
+      });
       // Estado de autenticado correcto
       
       localStorage.setItem('token', response.data.user.token);
+      localStorage.setItem('id', response.data.user.usuario.id);
+
       localStorage.setItem('userData', JSON.stringify(response.data));
   
 

@@ -1,5 +1,7 @@
 import * as go from "gojs";
 import { saveAs } from 'file-saver'; // Para descargar el archivo
+import { useNavigate } from 'react-router-dom';
+import { useUserContext } from "../../UserContext";
 
 import { useEffect, useRef, useState } from "react";
 import DiagramWrapper from "../DiagramWrapper";
@@ -56,43 +58,49 @@ const initialData = {
   ],
 };
 
-export default function Reunion() {
+const Reunion: React.FC = () => {
   const location = useLocation();
-  const { diagramaModel } = location.state ?? { diagramaModel: initialData };
-  const { id, codigo } = useParams();
-  const [data, setData] = useState(diagramaModel);
-  const [reunionTipo, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
 
+  // const { diagramaModel } = location.state ?? { diagramaModel: initialData };
+  // const { diagramaModel } = location.state.diagramaModel ?? '';
+  const { id, codigo } = useParams();
+  const [data, setData] = useState(initialData);
+  const [reunionTipo, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
+  // const password  = location.state.password ?? '';
   const [nextNodeX, setNextNodeX] = useState(400);
   const diagramRef = useRef<ReactDiagram | null>(null);
   const socket = io('http://localhost:3001/reunion');
   let timeoutId;
   // const [selectedNode, setSelectedNode] = useState<number | null>(null);
   useEffect(() => {
-    if (location.state && location.state.tipo === 'unirse') {
-      setReunionTipo('unirse');
-      setData(location.state.diagramaData);
-    } else {
-      const idDiagrama = id;
-      // Si no es una reunión para unirse, hace una solicitud para obtener el diagrama por ID
-      axios.get(`http://localhost:3001/diagrama/obtenerDiagramaIdReunion/${idDiagrama}`)
-        .then((response) => {
-          // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
-          console.log('location.state : ', response);
-          if (response.data === "" ) {
-            console.log('aqui');
-            setData(initialData);
-          } else {
-            setData(response.data);
-          }
+    axios.get(`http://localhost:3001/diagrama/obtenerDiagramaIdReunion/${id}`)
+    .then((response) => {
+      // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
+      console.log('Reunion es unirse')
+      setData(response.data);
+    })
+    .catch((error) => {
+      // Maneja errores, por ejemplo, mostrando un mensaje al usuario
+      console.error('Error al obtener el diagrama:', error);
+    });
+    // if (location.state && location.state.diagramaModel === '') { //es nueva
+    //   console.log('Reunion es creado')
+    //   setData(initialData);
+    // } else { // podría ser agarrado de un link o Unirse Reunion
+    //   const idReunion = id;
+    //   // Si no es una reunión para unirse, hace una solicitud para obtener el diagrama por ID
+    //   axios.get(`http://localhost:3001/diagrama/obtenerDiagramaIdReunion/${idReunion}`)
+    //     .then((response) => {
+    //       // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
+    //       console.log('Reunion es unirse')
+    //       setData(response.data);
+    //     })
+    //     .catch((error) => {
+    //       // Maneja errores, por ejemplo, mostrando un mensaje al usuario
+    //       console.error('Error al obtener el diagrama:', error);
+    //     });
 
-        })
-        .catch((error) => {
-          // Maneja errores, por ejemplo, mostrando un mensaje al usuario
-          console.error('Error al obtener el diagrama:', error);
-        });
-
-    }
+    // }
     socket.on('actualizarDiagramas', (updateData) => {
       console.log('data recib: ', updateData);
       setData(updateData,);
@@ -289,6 +297,7 @@ export default function Reunion() {
   ];
 
   const starUMLData = exportDiagramToStarUMLFormat(nodes, links);
+
   const downloadJSON = (data, filename) => {
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([data], { type: "application/json" });
@@ -312,7 +321,37 @@ export default function Reunion() {
       }
     }
   };
+  // En tu componente frontend
 
+  const downloadSvg = () => {
+    if (diagramRef.current) {
+      const diagram = diagramRef.current.getDiagram();
+
+      if (diagram) {
+        // Obtén el elemento SVG del diagrama
+        const svgString = diagram.makeSvg({
+          scale: 1,  // Puedes ajustar la escala según sea necesario
+          background: 'white',  // Puedes cambiar el fondo si lo deseas
+        });
+        const svgStrings = new XMLSerializer().serializeToString(svgString);
+        const svgText = new XMLSerializer().serializeToString(svgString);
+
+        // Crea un Blob con el contenido SVG
+        const blob = new Blob([svgText], { type: 'image/svg+xml' });
+
+        // Descarga el archivo SVG
+        saveAs(blob, 'diagrama.svg');
+
+        axios.post('http://localhost:3001/reuniones/savesvg', { svgString: svgText, id })
+          .then(response => {
+            console.log('SVG guardado correctamente en el servidor:', response.data);
+          })
+          .catch(error => {
+            console.error('Error al guardar el SVG:', error);
+          });
+      }
+    }
+  };
   // Función para encontrar el ID del nodo correspondiente en StarUML a partir de la clave del nodo de GoJS
   function findNodeId(node) {
     // Asumiendo que el ID del nodo está almacenado en la propiedad 'key'
@@ -336,6 +375,17 @@ export default function Reunion() {
       <div>
         <button onClick={handleDownloadButtonClick}>Exportar Diagrama</button>
       </div>
+      <div>
+        <button onClick={downloadSvg}>Descargar Imagen SVG</button>
+      </div>
+      <div>
+        Datos de la Reunión:
+        <ul>
+          <li>Codigo de la Reunión: {codigo} </li>
+          {/* {password && <li>Contraseña de la Reunión: {password}</li>} */}
+        </ul>
+      </div>
     </div>
   );
-}
+};
+export default Reunion;

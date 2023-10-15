@@ -2,6 +2,10 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, Dispa
 
 interface User {
   token: string;
+  id : number,
+  ci:number,
+  nombre: string,
+  apellido : string
   // Añade otros campos de usuario según sea necesario
 }
 

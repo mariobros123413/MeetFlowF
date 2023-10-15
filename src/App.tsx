@@ -24,7 +24,7 @@ export default function App(){
         <Route path="/register" element={isAuthenticated && token ? <Homepage /> : <Register />} />
         <Route path="/login" element={isAuthenticated && token ? <Homepage /> : <Login />} />
         <Route path="/post/:id" element={<Single />} />
-        <Route path="/write" element={isAuthenticated && token ? <Write /> : <Login />} />
+        <Route path="/diagramas" element={isAuthenticated && token ? <Write /> : <Login />} />
         <Route path="/settings" element={isAuthenticated && token ? <Settings /> : <Login />} />
         <Route path='/reunion/:id/:codigo' element={<Reunion />} />
       </Routes>
