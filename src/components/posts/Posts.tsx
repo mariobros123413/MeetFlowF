@@ -75,21 +75,28 @@ const Posts: React.FC = () => {
   const handleEntrarClick = () => {
     if (codigoReunion.trim() !== '' && password.trim() !== '') {
       try {
-        // Emitir un evento 'entrarReunion' con el código y contraseña al servidor
-        socket.emit('unirseReunion', { codigoReunion, password });
-        console.log(user);
-        // Manejar la respuesta del servidor cuando se entra en la reunión
-        socket.on('unirseReunionExitoso', (data) => {
-          console.log('data.diagrama.contenido : ', data.diagrama.contenido);
+        console.log('user.id : ', user.id)
+        if (user.id === null || user.id === undefined) {
+          logout();
+          localStorage.removeItem('token'); // Borra el token del Local Storage
+          localStorage.removeItem('userData'); // Borra los datos del usuario del Local Storage
+          navigate('/'); // Redirige a la página de inicio        navigate('/login');
+        } else {
+          // Emitir un evento 'entrarReunion' con el código y contraseña al servidor
+          socket.emit('unirseReunion', { codigoReunion, password, usuarioId : user.id });
+          // Manejar la respuesta del servidor cuando se entra en la reunión
+          socket.on('unirseReunionExitoso', (data) => {
+            // console.log('data.diagrama.contenido : ', data);
 
-          // const diagramaData = JSON.parse(data.diagrama.contenido);
+            // const diagramaData = JSON.parse(data.diagrama.contenido);
 
-          // Redirigir a la página de reunión con el ID y el código
-          // navigate(`/reunion/${data.id}/${data.codigo}`); //antes estaba on
-          navigate(`/reunion/${data.id}/${data.codigo}`, {
-            state: { diagramaModel: data.diagrama.contenido, tipo: 'unirse' },
+            // Redirigir a la página de reunión con el ID y el código
+            // navigate(`/reunion/${data.id}/${data.codigo}`); //antes estaba on
+            navigate(`/reunion/${data.id}/${data.codigo}`, {
+              state: { tipo: 'unirse', usuarioId : user.id },
+            });
           });
-        });
+        }
       } catch (error) {
         // Manejar errores, por ejemplo, mostrar un mensaje al usuario
         console.error('Error al entrar en la reunión:', error);

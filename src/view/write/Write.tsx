@@ -1,34 +1,83 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { useUserContext } from "../../UserContext";
+import { useNavigate } from 'react-router-dom';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 const Write: React.FC = () => {
   const [usuario, setUsuario] = useState<any>(null);
+  const { authenticated, user, logout } = useUserContext();
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Realizar la solicitud al backend para obtener los datos del usuario con sus reuniones y diagramas
-    const idUsuario = 1; // Reemplaza esto con el ID real del usuario
-    axios.get(`http://localhost:3001/usuario/${idUsuario}/reuniones`)
-      .then(response => {
-        setUsuario(response.data); // Almacena los datos del usuario en el estado
-      })
-      .catch(error => {
-        console.error('Error al obtener los datos del usuario:', error);
-      });
-  }, []);
+    if (!user ||(user.id === null || user.id === undefined)) {
+      logout();
+      localStorage.removeItem('token'); // Borra el token del Local Storage
+      localStorage.removeItem('userData'); // Borra los datos del usuario del Local Storage
+      navigate('/'); // Redirige a la página de inicio
+    } else {
+      const idUsuario = user.id; // Reemplaza esto con el ID real del usuario
+      axios.get(`http://localhost:3001/reuniones/${idUsuario}/reuniones`)
+        .then(response => {
+          console.log(response.data[1]);
+          setUsuario(response.data); // Almacena los datos del usuario en el estado
+        })
+        .catch(error => {
+          console.error('Error al obtener los datos del usuario:', error);
+        });
+    }
 
+  }, []);
+  function SVGImage({ svgString, alt }) {
+    // Convierte la cadena SVG en un Data URL
+    const dataURL = `data:image/svg+xml,${encodeURIComponent(svgString)}`;
+  
+    return (
+      <img src={dataURL} alt={alt} style={{ width: '100%', height: '100%' }} />
+    );
+  }
+  
+  function CustomCardMedia({ svgString, alt, title, ...props }) {
+    return (
+      <CardMedia
+        component={() => <SVGImage svgString={svgString} alt={alt} />}
+        title={title}
+        {...props}
+      />
+    );
+  }
+  
   return (
-    <div className="write">
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
       {/* Renderizar tarjetas de reuniones */}
-      {usuario && usuario.reuniones.map((reunion: any) => (
-        <div className="reunionCard" key={reunion.id}>
-          <h2>{reunion.titulo}</h2>
-          {/* Muestra la imagen del diagrama o cualquier otro dato que desees */}
-          <img src={reunion.diagramaUrl} alt="Diagrama" />
-          <p>{reunion.descripcion}</p>
+      {usuario?.map((reunion: any) => (
+        <div key={reunion.id} style={{ margin: '15px' }}>
+          <Card sx={{ maxWidth: 345, border: '1px solid #085659' }}>
+            <CustomCardMedia svgString={reunion.svg} alt="Descripción alternativa de la imagen SVG" title="Título de la imagen" />
+  
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="div">
+                {reunion.diagrama_titulo}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {reunion.diagrama_descripcion}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="small">Share</Button>
+              <Button size="small">Learn More</Button>
+            </CardActions>
+          </Card>
         </div>
       ))}
     </div>
   );
+  
 };
 
 export default Write;

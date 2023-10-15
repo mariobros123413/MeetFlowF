@@ -68,39 +68,35 @@ const Reunion: React.FC = () => {
   const [reunionTipo, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
   // const password  = location.state.password ?? '';
   const [nextNodeX, setNextNodeX] = useState(400);
+  const navigate = useNavigate()
+
   const diagramRef = useRef<ReactDiagram | null>(null);
   const socket = io('http://localhost:3001/reunion');
   let timeoutId;
   // const [selectedNode, setSelectedNode] = useState<number | null>(null);
   useEffect(() => {
     axios.get(`http://localhost:3001/diagrama/obtenerDiagramaIdReunion/${id}`)
-    .then((response) => {
-      // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
-      console.log('Reunion es unirse')
-      setData(response.data);
-    })
-    .catch((error) => {
-      // Maneja errores, por ejemplo, mostrando un mensaje al usuario
-      console.error('Error al obtener el diagrama:', error);
-    });
-    // if (location.state && location.state.diagramaModel === '') { //es nueva
-    //   console.log('Reunion es creado')
-    //   setData(initialData);
-    // } else { // podría ser agarrado de un link o Unirse Reunion
-    //   const idReunion = id;
-    //   // Si no es una reunión para unirse, hace una solicitud para obtener el diagrama por ID
-    //   axios.get(`http://localhost:3001/diagrama/obtenerDiagramaIdReunion/${idReunion}`)
-    //     .then((response) => {
-    //       // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
-    //       console.log('Reunion es unirse')
-    //       setData(response.data);
-    //     })
-    //     .catch((error) => {
-    //       // Maneja errores, por ejemplo, mostrando un mensaje al usuario
-    //       console.error('Error al obtener el diagrama:', error);
-    //     });
+      .then(async (response) => {
+        // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
 
-    // }
+        const tipo = (location.state && location.state.tipo) || 'default'; // Asigna 'default' si tipo es null o undefined
+        const usuarioId = (location.state && location.state.usuarioId) || 'default'; // Asigna 'default' si tipo es null o undefined
+        console.log("tipo: ", tipo)
+        if (tipo === 'unirse' || tipo === 'nueva' || (location.state && location.state.usuarioId === response.data.usuarioId)) {
+          await axios.post(`http://localhost:3001/colaborador/agregar`, { //Registramos al usuario como colaborador
+            usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
+            reunionId: id, // ID de la reunión a la que se está uniendo el usuario
+          });
+          setData(response.data);
+        } else {
+          navigate('/')
+        }
+      })
+      .catch((error) => {
+        // Maneja errores, por ejemplo, mostrando un mensaje al usuario
+        console.error('Error al obtener el diagrama:', error);
+      });
+
     socket.on('actualizarDiagramas', (updateData) => {
       console.log('data recib: ', updateData);
       setData(updateData,);
@@ -120,7 +116,7 @@ const Reunion: React.FC = () => {
     // Genera un nuevo nodo con una clave única
     const newNode = {
       key: "newNode" + Date.now(), // Puedes utilizar una lógica diferente para generar claves únicas
-      text: "New Node",
+      text: "NewNode",
       isGroup: true,
       loc: `${nextNodeX} 0`, // Ubicado en la posición del doble clic
       duration: 3, // Ajusta la duración según tus necesidades
@@ -135,7 +131,7 @@ const Reunion: React.FC = () => {
       nodeDataArray: newNodeDataArray,
     });
     socket.emit('actualizarDiagrama', { id, data: { nodeDataArray: newNodeDataArray, linkDataArray: data.linkDataArray } });
-
+    convertSVG();
     setNextNodeX(nextNodeX + 100);
   };
 
@@ -164,6 +160,7 @@ const Reunion: React.FC = () => {
         const reunionId = id;
 
         socket.emit('guardarDiagrama', { reunionId, diagrama: JSON.stringify(diagramData) });
+        convertSVG();
       }
     }
 
@@ -344,12 +341,29 @@ const Reunion: React.FC = () => {
 
         axios.post('http://localhost:3001/reuniones/savesvg', { svgString: svgText, id })
           .then(response => {
-            console.log('SVG guardado correctamente en el servidor:', response.data);
+            // console.log('SVG guardado correctamente en el servidor:', response.data);
           })
           .catch(error => {
             console.error('Error al guardar el SVG:', error);
           });
       }
+    }
+  };
+  const convertSVG = () => {
+    const diagram = diagramRef.current.getDiagram();
+
+    if (diagram) {
+      // Obtén el elemento SVG del diagrama
+      const svgString = diagram.makeSvg({
+        scale: 1,  // Puedes ajustar la escala según sea necesario
+        background: 'white',  // Puedes cambiar el fondo si lo deseas
+      });
+      const svgText = new XMLSerializer().serializeToString(svgString);
+
+      axios.post('http://localhost:3001/reuniones/savesvg', { svgString: svgText, id })
+        .then(response => {
+          // console.log('SVG guardado correctamente en el servidor:', response.data);
+        })
     }
   };
   // Función para encontrar el ID del nodo correspondiente en StarUML a partir de la clave del nodo de GoJS
@@ -358,7 +372,123 @@ const Reunion: React.FC = () => {
     return node.key;
   }
 
+  const handleConvertJavaButtonClick = () => {
+    if (diagramRef.current) {
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        // Enviar los datos al backend para la conversión a Java
+        const requestData = {
+          nodeDataArray: diagram.model.nodeDataArray,
+          linkDataArray: diagram.model.linkDataArray
+        };
 
+        axios.post('http://localhost:3001/reuniones/java', requestData)
+          .then(response => {
+            // Obtener el contenido de texto del servidor
+            const javaCode = response.data;
+
+            // Crear un Blob con el contenido de texto
+            const blob = new Blob([javaCode], { type: 'text/plain' });
+
+            // Crear una URL para el Blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Crear un enlace <a> para descargar el archivo
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'DiagramaJava.java'; // Nombre del archivo a descargar
+
+            // Agregar el enlace al DOM y hacer clic en él para iniciar la descarga
+            document.body.appendChild(a);
+            a.click();
+
+            // Eliminar el enlace del DOM después de la descarga
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(error => {
+            console.error('Error al enviar datos al backend:', error);
+          });
+      }
+    }
+  };
+  const handleConvertPythonButtonClick = () => {
+    if (diagramRef.current) {
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        // Enviar los datos al backend para la conversión a Java
+        const requestData = {
+          nodeDataArray: diagram.model.nodeDataArray,
+          linkDataArray: diagram.model.linkDataArray
+        };
+
+        axios.post('http://localhost:3001/reuniones/python', requestData)
+          .then(response => {
+            // Obtener el contenido de texto del servidor
+            const pythonCode = response.data;
+
+            // Crear un Blob con el contenido de texto
+            const blob = new Blob([pythonCode], { type: 'text/plain' });
+
+            // Crear una URL para el Blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Crear un enlace <a> para descargar el archivo
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'DiagramaPython.py'; // Nombre del archivo a descargar
+
+            // Agregar el enlace al DOM y hacer clic en él para iniciar la descarga
+            document.body.appendChild(a);
+            a.click();
+
+            // Eliminar el enlace del DOM después de la descarga
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(error => {
+            console.error('Error al enviar datos al backend:', error);
+          });
+      }
+    }
+  };
+  const handleConvertJavaScriptButtonClick = () => {
+    if (diagramRef.current) {
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        // Enviar los datos al backend para la conversión a Java
+        const requestData = {
+          nodeDataArray: diagram.model.nodeDataArray,
+          linkDataArray: diagram.model.linkDataArray
+        };
+
+        axios.post('http://localhost:3001/reuniones/javascript', requestData)
+          .then(response => {
+            // Obtener el contenido de texto del servidor
+            const jsCode = response.data;
+
+            // Crear un Blob con el contenido de texto
+            const blob = new Blob([jsCode], { type: 'text/plain' });
+
+            // Crear una URL para el Blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Crear un enlace <a> para descargar el archivo
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'DiagramaJavaScript.js'; // Nombre del archivo a descargar
+
+            // Agregar el enlace al DOM y hacer clic en él para iniciar la descarga
+            document.body.appendChild(a);
+            a.click();
+
+            // Eliminar el enlace del DOM después de la descarga
+            window.URL.revokeObjectURL(url);
+          })
+          .catch(error => {
+            console.error('Error al enviar datos al backend:', error);
+          });
+      }
+    }
+  };
   // Llama a la función para exportar el diagrama a StarUML
 
   return (
@@ -377,6 +507,15 @@ const Reunion: React.FC = () => {
       </div>
       <div>
         <button onClick={downloadSvg}>Descargar Imagen SVG</button>
+      </div>
+      <div>
+        <button onClick={handleConvertJavaButtonClick}>Convertir a Java</button>
+      </div>
+      <div>
+        <button onClick={handleConvertPythonButtonClick}>Convertir a Python</button>
+      </div>
+      <div>
+        <button onClick={handleConvertJavaScriptButtonClick}>Convertir a JavaScript</button>
       </div>
       <div>
         Datos de la Reunión:
