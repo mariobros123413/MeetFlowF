@@ -258,44 +258,44 @@ export class GuidedDraggingTool extends go.DraggingTool {
   /**
    * Shows vertical and horizontal guidelines for the dragged part.
    */
-  public doDragOver(pt: go.Point, obj: go.GraphObject): void {
-    // clear all existing guidelines in case either show... method decides to show a guideline
-    this.clearGuidelines();
+  // public doDragOver(pt: go.Point, obj: go.GraphObject): void {
+  //   // clear all existing guidelines in case either show... method decides to show a guideline
+  //   this.clearGuidelines();
 
-    // gets the selected part
-    const draggingParts = this.copiedParts || this.draggedParts;
-    if (draggingParts === null) return;
-    const partItr = draggingParts.iterator;
-    if (partItr.next()) {
-      const part = partItr.key;
+  //   // gets the selected part
+  //   const draggingParts = this.copiedParts || this.draggedParts;
+  //   if (draggingParts === null) return;
+  //   const partItr = draggingParts.iterator;
+  //   if (partItr.next()) {
+  //     const part = partItr.key;
 
-      this.showHorizontalMatches(part, this.isGuidelineEnabled, false);
-      this.showVerticalMatches(part, this.isGuidelineEnabled, false);
-    }
-  }
+  //     this.showHorizontalMatches(part, this.isGuidelineEnabled, false);
+  //     this.showVerticalMatches(part, this.isGuidelineEnabled, false);
+  //   }
+  // }
 
   /**
    * On a mouse-up, snaps the selected part to the nearest guideline.
    * If not snapping, the part remains at its position.
    */
-  public doDropOnto(pt: go.Point, obj: go.GraphObject): void {
-    this.clearGuidelines();
+  // public doDropOnto(pt: go.Point, obj: go.GraphObject): void {
+  //   this.clearGuidelines();
 
-    // gets the selected (perhaps copied) Part
-    const draggingParts = this.copiedParts || this.draggedParts;
-    if (draggingParts === null) return;
-    const partItr = draggingParts.iterator;
-    if (partItr.next()) {
-      const part = partItr.key;
+  //   // gets the selected (perhaps copied) Part
+  //   const draggingParts = this.copiedParts || this.draggedParts;
+  //   if (draggingParts === null) return;
+  //   const partItr = draggingParts.iterator;
+  //   if (partItr.next()) {
+  //     const part = partItr.key;
 
-      // snaps only when the mouse is released without shift modifier
-      const e = this.diagram.lastInput;
-      const snap = this.isGuidelineSnapEnabled && !e.shift;
+  //     // snaps only when the mouse is released without shift modifier
+  //     const e = this.diagram.lastInput;
+  //     const snap = this.isGuidelineSnapEnabled && !e.shift;
 
-      this.showHorizontalMatches(part, false, snap); // false means don't show guidelines
-      this.showVerticalMatches(part, false, snap);
-    }
-  }
+  //     this.showHorizontalMatches(part, false, snap); // false means don't show guidelines
+  //     this.showVerticalMatches(part, false, snap);
+  //   }
+  // }
 
   /**
    * When nodes are shifted due to being guided upon a drop, make sure all connected link routes are invalidated,

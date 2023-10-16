@@ -1,5 +1,5 @@
 import "./register.css"
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../axiosInstance'; // Importa la instancia de Axios
 import { useNavigate } from 'react-router-dom';
@@ -16,8 +16,8 @@ export default function Register() {
     telefono: 0,
     contrasena: '',
   });
-  const [error, setError] = useState('');
-  const history = useNavigate(); // Obtiene la instancia de la historia de navegación
+  const [, setError] = useState('');
+  // const history = useNavigate(); // Obtiene la instancia de la historia de navegación
   const { setAuthenticated } = useUserContext(); // Accede a la función setAuthenticated del contexto
   const { login } = useUserContext(); // Obtiene la función de login del contexto
   const handleSubmit = async (e) => {

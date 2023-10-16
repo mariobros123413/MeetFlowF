@@ -1,1 +1,1 @@
-export * from "./DiagramWrapper";
+export * from "../DiagramWrapper";

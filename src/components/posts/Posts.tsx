@@ -1,16 +1,14 @@
 import "./posts.css";
-import axios from 'axios'; // Asegúrate de tener axios instalado: npm install axios
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
-import go from 'gojs';
 import { useUserContext } from "../../UserContext";
 const Posts: React.FC = () => {
-  const { authenticated, user, logout } = useUserContext();
-  const token: string | null = localStorage.getItem('token');
+  const { user, logout } = useUserContext();
+  // const token: string | null = localStorage.getItem('token');
 
   const navigate = useNavigate()
-  const socket = io('http://localhost:3001/reunion');
+  const socket = io('https://meetflow-production.up.railway.app/reunion');
 
   const [password, setPassword] = useState('');
 
@@ -20,7 +18,7 @@ const Posts: React.FC = () => {
     name: '',
     description: '',
   });
-  const [redirectToReunion, setRedirectToReunion] = useState(false);
+  // const [redirectToReunion, setRedirectToReunion] = useState(false);
 
   // Función para manejar el envío del formulario
   const handleFormSubmit = async (e) => {

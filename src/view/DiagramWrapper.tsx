@@ -118,9 +118,9 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
         this.time = 0; // use this "time" value when this is the temporaryLink
       }
 
-      getLinkPoint(node, port, spot, from, ortho, othernode, otherport) {
+      getLinkPoint(node, port, _spot, _from, _ortho, _othernode, otherport) {
         const p = port.getDocumentPoint(go.Spot.Center);
-        const r = port.getDocumentBounds();
+        // const r = port.getDocumentBounds();
         const op = otherport.getDocumentPoint(go.Spot.Center);
 
         const data = this.data;
@@ -153,13 +153,13 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
       }
 
       getLinkDirection(
-        node,
+        _node,
         port,
-        linkpoint,
-        spot,
-        from,
-        ortho,
-        othernode,
+        _linkpoint,
+        _spot,
+        _from,
+        _ortho,
+        _othernode,
         otherport
       ) {
         const p = port.getDocumentPoint(go.Spot.Center);
@@ -192,9 +192,10 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
     // end MessageLink
 
     class MessagingTool extends go.LinkingTool {
+      time: number;
       constructor() {
         super();
-
+        number:0 ;
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
         const $ = go.GraphObject.make;
@@ -208,7 +209,7 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
       doActivate() {
         super.doActivate();
         const time = convertYToTime(this.diagram.firstInput.documentPoint.y);
-        this.temporaryLink.time = Math.ceil(time); // round up to an integer value
+        this.time = Math.ceil(time); // round up to an integer value
       }
 
       /*
@@ -229,7 +230,7 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
         if (newlink !== null) {
           const model = this.diagram.model;
           // specify the time of the message
-          const start = this.temporaryLink.time;
+          const start = this.time;
           const duration = 1;
           newlink.data.time = start;
           model.setDataProperty(newlink.data, "text", "mensaje");
@@ -451,7 +452,7 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
       linkDataArray={linkDataArray}
       // modelData={modelData}
       onModelChange={onModelChange}
-      // skipsDiagramUpdate={skipsDiagramUpdate}
+    // skipsDiagramUpdate={skipsDiagramUpdate}
     />
   );
 };

@@ -5,20 +5,25 @@ import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
+import CardMedia, { CardMediaProps } from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import io from 'socket.io-client';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
+interface CustomCardMediaProps extends CardMediaProps {
+  svgString: string;
+  alt: string;
+  title: string;
+}
 const Write: React.FC = () => {
   const [usuario, setUsuario] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { authenticated, user, logout } = useUserContext();
+  const { user, logout } = useUserContext();
   const navigate = useNavigate()
-  const socket = io('http://localhost:3001/reunion');
+  const socket = io('https://meetflow-production.up.railway.app/reunion');
 
   useEffect(() => {
     // Realizar la solicitud al backend para obtener los datos del usuario con sus reuniones y diagramas
@@ -29,7 +34,7 @@ const Write: React.FC = () => {
       navigate('/'); // Redirige a la página de inicio
     } else {
       const idUsuario = user.id; // Reemplaza esto con el ID real del usuario
-      axios.get(`http://localhost:3001/reuniones/${idUsuario}/reuniones`)
+      axios.get(`https://meetflow-production.up.railway.app/reuniones/${idUsuario}/reuniones`)
         .then(response => {
           console.log(response.data);
           setUsuario(response.data); // Almacena los datos del usuario en el estado
@@ -49,7 +54,7 @@ const Write: React.FC = () => {
     );
   }
 
-  function CustomCardMedia({ svgString, alt, title, ...props }) {
+  function CustomCardMedia({ svgString, alt, title, ...props }: CustomCardMediaProps) {
     return (
       <CardMedia
         component={() => <SVGImage svgString={svgString} alt={alt} />}
@@ -58,6 +63,8 @@ const Write: React.FC = () => {
       />
     );
   }
+  
+  
   const handleEntrarClick = (codigo, password) => {
     try {
       console.log('user.id : ', user.id)

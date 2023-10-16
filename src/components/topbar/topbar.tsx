@@ -39,9 +39,9 @@ const Topbar: React.FC = () => {
         {isAuthenticated && token ? (
           <div className="">
             <ul className="topList">
-              {user && user.user && user.user.usuario && (
-                <li className="topListItem" style={{ marginTop: '25px', cursor: 'text', hover: 'disabled' }}>
-                  {user.user.usuario.nombre} {user.user.usuario.apellido}
+              {user && (
+                <li className="topListItem" style={{ marginTop: '25px', cursor: 'text' }}>
+                  {user.nombre} {user.apellido}
                 </li>
               )}
 
