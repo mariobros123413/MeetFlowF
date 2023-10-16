@@ -489,7 +489,48 @@ const Reunion: React.FC = () => {
       }
     }
   };
-  // Llama a la función para exportar el diagrama a StarUML
+
+  const handleGojsDownloadButtonClick = () => {
+    if (diagramRef.current) {
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        const jsonData = diagram.model.toJson();
+        const blob = new Blob([jsonData], { type: 'application/gojs' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'diagramGoJS.gojs'; // Nombre del archivo a descargar
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    }
+  };
+  const handleUploadFile = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = e.target.result;
+        if (data) {
+          const jsonData = JSON.parse(data);
+          if (diagramRef.current) {
+            const diagram = diagramRef.current.getDiagram();
+            if (diagram) {
+              diagram.model = go.Model.fromJson(jsonData);
+            }
+          }
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      console.error("No se seleccionó ningún archivo.");
+    }
+  };
+
+
+  // En tu componente de JSX, agrega un input de tipo "file" para cargar el archivo
+  <input type="file" accept=".gojs" onChange={handleUploadFile} key={Math.random()} />
 
   return (
     <div>
@@ -517,6 +558,11 @@ const Reunion: React.FC = () => {
       <div>
         <button onClick={handleConvertJavaScriptButtonClick}>Convertir a JavaScript</button>
       </div>
+      <div>
+        <button onClick={handleGojsDownloadButtonClick}>Descargar Diagrama GoJs</button>
+      </div>
+      <input type="file" accept=".gojs" onChange={handleUploadFile} key={Math.random()} />
+
       <div>
         Datos de la Reunión:
         <ul>
