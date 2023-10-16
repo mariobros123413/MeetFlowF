@@ -141,7 +141,7 @@ const Reunion: React.FC = () => {
   const handleModelChange = (obj: go.IncrementalData) => {
     if (diagramRef.current) {
       const model = diagramRef.current.getDiagram()?.model;
-
+      console.log(' model.linkDataArray : ',  model.linkDataArray);
       if (model) {
         const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
           // Transforma linkData según la estructura esperada
