@@ -183,7 +183,7 @@ const Reunion: React.FC = () => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           socket.emit('actualizarDiagrama', { id, data: { nodeDataArray: model.nodeDataArray, linkDataArray: model.linkDataArray } });
-        }, 500);
+        }, 100);
 
         const reunionId = id;
 
