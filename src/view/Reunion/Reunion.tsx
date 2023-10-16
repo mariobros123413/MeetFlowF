@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import DiagramWrapper from "../DiagramWrapper";
 import { ReactDiagram } from "gojs-react";
 import { io } from 'socket.io-client';
-import { useParams,  } from 'react-router-dom';
+import { useParams, } from 'react-router-dom';
 import axios from 'axios';
 
 
@@ -78,17 +78,17 @@ const Reunion: React.FC = () => {
   let timeoutId;
   // const [selectedNode, setSelectedNode] = useState<number | null>(null);
   useEffect(() => {
-    axios.get(`https://meetflow-production.up.railway.app/diagrama/obtenerDiagramaIdReunion/${id}`)
-      .then(async (response) => {
-        // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
-
-        
-          setData(response.data);
-      })
-      .catch((error) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`https://meetflow-production.up.railway.app/diagrama/obtenerDiagramaIdReunion/${id}`);
+        setData(response.data);
+      } catch (error) {
         // Maneja errores, por ejemplo, mostrando un mensaje al usuario
         console.error('Error al obtener el diagrama:', error);
-      });
+      }
+    };
+    fetchData(); // Llama a la función asíncrona
+
 
     socket.on('actualizarDiagramas', (updateData) => {
       console.log('data recib: ', updateData);
