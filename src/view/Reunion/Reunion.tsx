@@ -67,8 +67,10 @@ const Reunion: React.FC = () => {
   // const { diagramaModel } = location.state ?? { diagramaModel: initialData };
   // const { diagramaModel } = location.state.diagramaModel ?? '';
   const { id, codigo } = useParams();
-  const [data, setData] = useState(initialData);
-  // const [, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
+  const [data, setData] = useState(() => {
+    const savedData = localStorage.getItem('diagramData');
+    return savedData ? JSON.parse(savedData) : initialData;
+  });  // const [, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
   // const password  = location.state.password ?? '';
   const [nextNodeX, setNextNodeX] = useState(400);
   // const navigate = useNavigate()
@@ -98,8 +100,14 @@ const Reunion: React.FC = () => {
       if (socket) {
         socket.disconnect();
       }
+      if (diagramRef.current) {
+        const savedData = diagramRef.current?.getDiagram()?.model.toJson();
+        if (savedData) {
+          localStorage.setItem('diagramData', savedData);
+        }
+      }
     };
-  }, []);
+  }, [id]);
   // Función para generar un ID único para los elementos de StarUML
   const generateUniqueId = () => {
     return "AAAAAAFF+" + Math.random().toString(36).substr(2, 9);
