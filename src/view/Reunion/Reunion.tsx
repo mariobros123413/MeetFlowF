@@ -1,12 +1,12 @@
 import * as go from "gojs";
 import { saveAs } from 'file-saver'; // Para descargar el archivo
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 import { useEffect, useRef, useState } from "react";
 import DiagramWrapper from "../DiagramWrapper";
 import { ReactDiagram } from "gojs-react";
 import { io } from 'socket.io-client';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams,  } from 'react-router-dom';
 import axios from 'axios';
 
 
@@ -60,7 +60,7 @@ const initialData = {
 };
 
 const Reunion: React.FC = () => {
-  const location = useLocation();
+  // const location = useLocation();
   const myDiagram = new go.Diagram();
   const model = new go.GraphLinksModel();
   myDiagram.model = model;
@@ -68,10 +68,10 @@ const Reunion: React.FC = () => {
   // const { diagramaModel } = location.state.diagramaModel ?? '';
   const { id, codigo } = useParams();
   const [data, setData] = useState(initialData);
-  const [, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
+  // const [, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
   // const password  = location.state.password ?? '';
   const [nextNodeX, setNextNodeX] = useState(400);
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   const diagramRef = useRef<ReactDiagram | null>(null);
   const socket = io('https://meetflow-production.up.railway.app/reunion');
@@ -82,19 +82,8 @@ const Reunion: React.FC = () => {
       .then(async (response) => {
         // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
 
-        const tipo = (location.state && location.state.tipo) || 'default'; // Asigna 'default' si tipo es null o undefined
-        const usuarioId = (location.state && location.state.usuarioId) || 'default'; // Asigna 'default' si tipo es null o undefined
-        console.log("tipo: ", tipo)
-        if (tipo === 'unirse' || tipo === 'nueva' || (location.state && location.state.usuarioId === response.data.usuarioId)) {
-          await axios.post(`https://meetflow-production.up.railway.app/colaborador/agregar`, { //Registramos al usuario como colaborador
-            usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
-            reunionId: id, // ID de la reunión a la que se está uniendo el usuario
-          });
+        
           setData(response.data);
-          setReunionTipo(tipo);
-        } else {
-          navigate('/')
-        }
       })
       .catch((error) => {
         // Maneja errores, por ejemplo, mostrando un mensaje al usuario
