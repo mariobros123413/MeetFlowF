@@ -8,6 +8,7 @@ import { ReactDiagram } from "gojs-react";
 import { io } from 'socket.io-client';
 import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { ObjectData } from "gojs";
 
 const initialData = {
   nodeDataArray: [
@@ -136,17 +137,22 @@ const Reunion: React.FC = () => {
   };
 
   const handleDiagramEvent = (_e: go.DiagramEvent) => { };
+  interface DiagramModel {
+    nodeDataArray: ObjectData[];
+    linkDataArray: ObjectData[];
+    // Otras propiedades si las hay
+  }
 
   // Cuando se realice un cambio
   const handleModelChange = (obj: go.IncrementalData) => {
     if (diagramRef.current) {
-      const model = diagramRef.current.getDiagram()?.model;
+      const model: DiagramModel | undefined = diagramRef.current?.getDiagram()?.model;
 
       if (model) {
         const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
           // Transforma linkData según la estructura esperada
           // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-        
+
 
           return {
             from: linkData.from,
@@ -165,7 +171,7 @@ const Reunion: React.FC = () => {
             duration: nodeData.duration,
             group: nodeData.group,
             key: nodeData.key,
-            start : nodeData.start,
+            start: nodeData.start,
             // Agrega otras propiedades según sea necesario
           };
         });
