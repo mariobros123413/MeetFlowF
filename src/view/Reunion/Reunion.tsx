@@ -8,7 +8,8 @@ import { ReactDiagram } from "gojs-react";
 import { io } from 'socket.io-client';
 import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { ObjectData } from "gojs";
+
+
 
 const initialData = {
   nodeDataArray: [
@@ -60,7 +61,9 @@ const initialData = {
 
 const Reunion: React.FC = () => {
   const location = useLocation();
-
+  const myDiagram = new go.Diagram();
+  const model = new go.GraphLinksModel();
+  myDiagram.model = model;
   // const { diagramaModel } = location.state ?? { diagramaModel: initialData };
   // const { diagramaModel } = location.state.diagramaModel ?? '';
   const { id, codigo } = useParams();
@@ -137,23 +140,21 @@ const Reunion: React.FC = () => {
   };
 
   const handleDiagramEvent = (_e: go.DiagramEvent) => { };
-  interface DiagramModel {
-    nodeDataArray: ObjectData[];
-    linkDataArray: ObjectData[];
+   interface DiagramModel {
+    nodeDataArray: go.ObjectData[];
+    linkDataArray: go.ObjectData[];
     // Otras propiedades si las hay
   }
-
+  
   // Cuando se realice un cambio
   const handleModelChange = (obj: go.IncrementalData) => {
     if (diagramRef.current) {
-      const model: DiagramModel | undefined = diagramRef.current?.getDiagram()?.model;
+      const model: any = diagramRef.current?.getDiagram()?.model;
 
-      if (model) {
+      if (model && model.linkDataArray) {
         const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
           // Transforma linkData según la estructura esperada
           // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-
-
           return {
             from: linkData.from,
             key: linkData.key,
@@ -171,7 +172,7 @@ const Reunion: React.FC = () => {
             duration: nodeData.duration,
             group: nodeData.group,
             key: nodeData.key,
-            start: nodeData.start,
+            start : nodeData.start,
             // Agrega otras propiedades según sea necesario
           };
         });
