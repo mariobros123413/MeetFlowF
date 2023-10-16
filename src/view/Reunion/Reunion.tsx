@@ -70,11 +70,11 @@ const Reunion: React.FC = () => {
   const navigate = useNavigate()
 
   const diagramRef = useRef<ReactDiagram | null>(null);
-  const socket = io('http://localhost:3001/reunion');
+  const socket = io('https://meetflow-production.up.railway.app/reunion');
   let timeoutId;
   // const [selectedNode, setSelectedNode] = useState<number | null>(null);
   useEffect(() => {
-    axios.get(`http://localhost:3001/diagrama/obtenerDiagramaIdReunion/${id}`)
+    axios.get(`https://meetflow-production.up.railway.app/diagrama/obtenerDiagramaIdReunion/${id}`)
       .then(async (response) => {
         // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
 
@@ -82,7 +82,7 @@ const Reunion: React.FC = () => {
         const usuarioId = (location.state && location.state.usuarioId) || 'default'; // Asigna 'default' si tipo es null o undefined
         console.log("tipo: ", tipo)
         if (tipo === 'unirse' || tipo === 'nueva' || (location.state && location.state.usuarioId === response.data.usuarioId)) {
-          await axios.post(`http://localhost:3001/colaborador/agregar`, { //Registramos al usuario como colaborador
+          await axios.post(`https://meetflow-production.up.railway.app/colaborador/agregar`, { //Registramos al usuario como colaborador
             usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
             reunionId: id, // ID de la reunión a la que se está uniendo el usuario
           });
@@ -141,14 +141,16 @@ const Reunion: React.FC = () => {
   const handleModelChange = (obj: go.IncrementalData) => {
     if (diagramRef.current) {
       const model = diagramRef.current.getDiagram()?.model;
-      console.log(' model.linkDataArray : ',  model.linkDataArray);
+
       if (model) {
         const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
           // Transforma linkData según la estructura esperada
           // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
+        
+
           return {
             from: linkData.from,
-            key: linkData.key.toString(),
+            key: linkData.key,
             text: linkData.text,
             time: linkData.time,
             to: linkData.to,
@@ -158,12 +160,12 @@ const Reunion: React.FC = () => {
         const formattedNodeDataArray = model.nodeDataArray.map((nodeData: go.ObjectData) => {
           // Transforma linkData según la estructura esperada
           // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
+          console.log('nodedataarrray : ', nodeData)
           return {
             duration: nodeData.duration,
-            isGroup: nodeData.isGroup,
+            group: nodeData.group,
             key: nodeData.key,
-            loc: nodeData.loc,
-            text: nodeData.text,
+            start : nodeData.start,
             // Agrega otras propiedades según sea necesario
           };
         });
@@ -369,7 +371,7 @@ const Reunion: React.FC = () => {
         // Descarga el archivo SVG
         saveAs(blob, 'diagrama.svg');
 
-        axios.post('http://localhost:3001/reuniones/savesvg', { svgString: svgText, id })
+        axios.post('https://meetflow-production.up.railway.app/reuniones/savesvg', { svgString: svgText, id })
           .then(_response => {
             // console.log('SVG guardado correctamente en el servidor:', response.data);
           })
@@ -390,7 +392,7 @@ const Reunion: React.FC = () => {
       });
       const svgText = new XMLSerializer().serializeToString(svgString);
 
-      axios.post('http://localhost:3001/reuniones/savesvg', { svgString: svgText, id })
+      axios.post('https://meetflow-production.up.railway.app/reuniones/savesvg', { svgString: svgText, id })
         .then(_response => {
           // console.log('SVG guardado correctamente en el servidor:', response.data);
         })
@@ -408,7 +410,7 @@ const Reunion: React.FC = () => {
           linkDataArray: diagram.model.linkDataArray
         };
 
-        axios.post('http://localhost:3001/reuniones/java', requestData)
+        axios.post('https://meetflow-production.up.railway.app/reuniones/java', requestData)
           .then(response => {
             // Obtener el contenido de texto del servidor
             const javaCode = response.data;
@@ -447,7 +449,7 @@ const Reunion: React.FC = () => {
           linkDataArray: diagram.model.linkDataArray
         };
 
-        axios.post('http://localhost:3001/reuniones/python', requestData)
+        axios.post('https://meetflow-production.up.railway.app/reuniones/python', requestData)
           .then(response => {
             // Obtener el contenido de texto del servidor
             const pythonCode = response.data;
@@ -486,7 +488,7 @@ const Reunion: React.FC = () => {
           linkDataArray: diagram.model.linkDataArray
         };
 
-        axios.post('http://localhost:3001/reuniones/javascript', requestData)
+        axios.post('https://meetflow-production.up.railway.app/reuniones/javascript', requestData)
           .then(response => {
             // Obtener el contenido de texto del servidor
             const jsCode = response.data;
