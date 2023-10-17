@@ -1,15 +1,13 @@
 import * as go from "gojs";
 import { saveAs } from 'file-saver'; // Para descargar el archivo
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useEffect, useRef, useState } from "react";
 import DiagramWrapper from "../DiagramWrapper";
 import { ReactDiagram } from "gojs-react";
 import { io } from 'socket.io-client';
-import { useParams, } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
-
-
 
 const initialData = {
   nodeDataArray: [
@@ -58,39 +56,46 @@ const initialData = {
     { from: "Fred", to: "Renee", text: "pay", time: 8 },
   ],
 };
+// const model = new go.GraphLinksModel(initialData.nodeDataArray, initialData.linkDataArray);
 
 const Reunion: React.FC = () => {
-  // const location = useLocation();
-  const myDiagram = new go.Diagram();
-  const model = new go.GraphLinksModel();
-  myDiagram.model = model;
+  const location = useLocation();
+
   // const { diagramaModel } = location.state ?? { diagramaModel: initialData };
   // const { diagramaModel } = location.state.diagramaModel ?? '';
   const { id, codigo } = useParams();
-  const [data, setData] = useState(() => {
-    const savedData = localStorage.getItem('diagramData');
-    return savedData ? JSON.parse(savedData) : initialData;
-  });  // const [, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
+  const [data, setData] = useState(initialData);
+  // const [reunionTipo, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
   // const password  = location.state.password ?? '';
   const [nextNodeX, setNextNodeX] = useState(400);
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
 
   const diagramRef = useRef<ReactDiagram | null>(null);
   const socket = io('https://meetflow-production.up.railway.app/reunion');
   let timeoutId;
   // const [selectedNode, setSelectedNode] = useState<number | null>(null);
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`https://meetflow-production.up.railway.app/diagrama/obtenerDiagramaIdReunion/${id}`);
-        setData(response.data);
-      } catch (error) {
+    axios.get(`https://meetflow-production.up.railway.app/diagrama/obtenerDiagramaIdReunion/${id}`)
+      .then(async (response) => {
+        // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
+
+        const tipo = (location.state && location.state.tipo) || 'default'; // Asigna 'default' si tipo es null o undefined
+        const usuarioId = (location.state && location.state.usuarioId) || 'default'; // Asigna 'default' si tipo es null o undefined
+        console.log("tipo: ", tipo)
+        if (tipo === 'unirse' || tipo === 'nueva' || (location.state && location.state.usuarioId === response.data.usuarioId)) {
+          await axios.post(`https://meetflow-production.up.railway.app/colaborador/agregar`, { //Registramos al usuario como colaborador
+            usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
+            reunionId: id, // ID de la reunión a la que se está uniendo el usuario
+          });
+          setData(response.data);
+        } else {
+          navigate('/')
+        }
+      })
+      .catch((error) => {
         // Maneja errores, por ejemplo, mostrando un mensaje al usuario
         console.error('Error al obtener el diagrama:', error);
-      }
-    };
-    fetchData(); // Llama a la función asíncrona
-
+      });
 
     socket.on('actualizarDiagramas', (updateData) => {
       console.log('data recib: ', updateData);
@@ -100,14 +105,8 @@ const Reunion: React.FC = () => {
       if (socket) {
         socket.disconnect();
       }
-      if (diagramRef.current) {
-        const savedData = diagramRef.current?.getDiagram()?.model.toJson();
-        if (savedData) {
-          localStorage.setItem('diagramData', savedData);
-        }
-      }
     };
-  }, [id]);
+  }, []);
   // Función para generar un ID único para los elementos de StarUML
   const generateUniqueId = () => {
     return "AAAAAAFF+" + Math.random().toString(36).substr(2, 9);
@@ -136,51 +135,35 @@ const Reunion: React.FC = () => {
     setNextNodeX(nextNodeX + 100);
   };
 
-  const handleDiagramEvent = (_e: go.DiagramEvent) => { };
+  const handleDiagramEvent = () => { };
 
   // Cuando se realice un cambio
   const handleModelChange = (obj: go.IncrementalData) => {
     if (diagramRef.current) {
-      const model: any = diagramRef.current?.getDiagram()?.model;
-
-      if (model && model.linkDataArray) {
-        const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          return {
-            from: linkData.from,
-            key: linkData.key,
-            text: linkData.text,
-            time: linkData.time,
-            to: linkData.to,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const formattedNodeDataArray = model.nodeDataArray.map((nodeData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          console.log('nodedataarrray : ', nodeData)
-          return {
-            duration: nodeData.duration,
-            group: nodeData.group,
-            key: nodeData.key,
-            start: nodeData.start,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
+      const model = diagramRef.current.getDiagram()?.model;
+      // console.log("obj.modifiedLinkData[0] : ", obj.modifiedLinkData[0]);
+      // data.linkDataArray.push(obj.modifiedLinkData[0].toJson);
+      if (model) {
         const diagramData = {
           ...data,
-          nodeDataArray: formattedNodeDataArray,
-          linkDataArray: formattedLinkDataArray,
+          nodeDataArray: model.nodeDataArray,
+                // @ts-ignore
+
+          linkDataArray : model.linkDataArray
+
         };
 
-        setData(diagramData);
+        // Convierte el objeto del diagrama en JSON y guárdalo en el estado o variable
+              // @ts-ignore
 
+        setData(diagramData);
         // Cancela el envío anterior y programa un nuevo envío después de 500ms
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
+                // @ts-ignore
+
           socket.emit('actualizarDiagrama', { id, data: { nodeDataArray: model.nodeDataArray, linkDataArray: model.linkDataArray } });
-        }, 100);
+        }, 500);
 
         const reunionId = id;
 
@@ -398,41 +381,19 @@ const Reunion: React.FC = () => {
     }
   };
   // Función para encontrar el ID del nodo correspondiente en StarUML a partir de la clave del nodo de GoJS
-
   const handleConvertJavaButtonClick = () => {
     if (diagramRef.current) {
-      const model: any = diagramRef.current?.getDiagram()?.model;
-      if (model && model.linkDataArray) {        // Enviar los datos al backend para la conversión a Java
-        const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          return {
-            from: linkData.from,
-            key: linkData.key,
-            text: linkData.text,
-            time: linkData.time,
-            to: linkData.to,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const formattedNodeDataArray = model.nodeDataArray.map((nodeData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          console.log('nodedataarrray : ', nodeData)
-          return {
-            duration: nodeData.duration,
-            group: nodeData.group,
-            key: nodeData.key,
-            start: nodeData.start,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const diagramData = {
-          ...data,
-          nodeDataArray: formattedNodeDataArray,
-          linkDataArray: formattedLinkDataArray,
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        // Enviar los datos al backend para la conversión a Java
+        const requestData = {
+          nodeDataArray: diagram.model.nodeDataArray,
+                // @ts-ignore
+
+          linkDataArray: diagram.model.linkDataArray
         };
-        axios.post('https://meetflow-production.up.railway.app/reuniones/java', diagramData)
+
+        axios.post('https://meetflow-production.up.railway.app/reuniones/java', requestData)
           .then(response => {
             // Obtener el contenido de texto del servidor
             const javaCode = response.data;
@@ -463,40 +424,16 @@ const Reunion: React.FC = () => {
   };
   const handleConvertPythonButtonClick = () => {
     if (diagramRef.current) {
-      const model: any = diagramRef.current?.getDiagram()?.model;
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        // Enviar los datos al backend para la conversión a Java
+        const requestData = {
+          nodeDataArray: diagram.model.nodeDataArray,      // @ts-ignore
 
-      if (model && model.linkDataArray) {
-        const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          return {
-            from: linkData.from,
-            key: linkData.key,
-            text: linkData.text,
-            time: linkData.time,
-            to: linkData.to,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const formattedNodeDataArray = model.nodeDataArray.map((nodeData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          console.log('nodedataarrray : ', nodeData)
-          return {
-            duration: nodeData.duration,
-            group: nodeData.group,
-            key: nodeData.key,
-            start: nodeData.start,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const diagramData = {
-          ...data,
-          nodeDataArray: formattedNodeDataArray,
-          linkDataArray: formattedLinkDataArray,
+          linkDataArray: diagram.model.linkDataArray
         };
 
-        axios.post('https://meetflow-production.up.railway.app/reuniones/python', diagramData)
+        axios.post('https://meetflow-production.up.railway.app/reuniones/python', requestData)
           .then(response => {
             // Obtener el contenido de texto del servidor
             const pythonCode = response.data;
@@ -527,40 +464,17 @@ const Reunion: React.FC = () => {
   };
   const handleConvertJavaScriptButtonClick = () => {
     if (diagramRef.current) {
-      const model: any = diagramRef.current?.getDiagram()?.model;
+      const diagram = diagramRef.current.getDiagram();
+      if (diagram) {
+        // Enviar los datos al backend para la conversión a Java
+        const requestData = {
+          nodeDataArray: diagram.model.nodeDataArray,
+                // @ts-ignore
 
-      if (model && model.linkDataArray) {
-        const formattedLinkDataArray = model.linkDataArray.map((linkData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          return {
-            from: linkData.from,
-            key: linkData.key,
-            text: linkData.text,
-            time: linkData.time,
-            to: linkData.to,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const formattedNodeDataArray = model.nodeDataArray.map((nodeData: go.ObjectData) => {
-          // Transforma linkData según la estructura esperada
-          // Por ejemplo, asumiendo que linkData tiene propiedades 'source', 'target', 'text', 'time', etc.
-          console.log('nodedataarrray : ', nodeData)
-          return {
-            duration: nodeData.duration,
-            group: nodeData.group,
-            key: nodeData.key,
-            start: nodeData.start,
-            // Agrega otras propiedades según sea necesario
-          };
-        });
-        const diagramData = {
-          ...data,
-          nodeDataArray: formattedNodeDataArray,
-          linkDataArray: formattedLinkDataArray,
+          linkDataArray: diagram.model.linkDataArray
         };
 
-        axios.post('https://meetflow-production.up.railway.app/reuniones/javascript', diagramData)
+        axios.post('https://meetflow-production.up.railway.app/reuniones/javascript', requestData)
           .then(response => {
             // Obtener el contenido de texto del servidor
             const jsCode = response.data;
@@ -631,7 +545,6 @@ const Reunion: React.FC = () => {
       console.error("No se seleccionó ningún archivo.");
     }
   };
-
 
 
   // En tu componente de JSX, agrega un input de tipo "file" para cargar el archivo
