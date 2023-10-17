@@ -8,6 +8,7 @@ import { ReactDiagram } from "gojs-react";
 import { io } from 'socket.io-client';
 import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { EAConverter } from './exportToEa'; // Asegúrate de especificar la ruta correcta al archivo EAConverter.ts
 
 const initialData = {
   nodeDataArray: [
@@ -108,9 +109,6 @@ const Reunion: React.FC = () => {
     };
   }, []);
   // Función para generar un ID único para los elementos de StarUML
-  const generateUniqueId = () => {
-    return "AAAAAAFF+" + Math.random().toString(36).substr(2, 9);
-  };
   // Función para gregar nodo
   const addNode = (_position) => {
     // Genera un nuevo nodo con una clave única
@@ -147,20 +145,20 @@ const Reunion: React.FC = () => {
         const diagramData = {
           ...data,
           nodeDataArray: model.nodeDataArray,
-                // @ts-ignore
+          // @ts-ignore
 
-          linkDataArray : model.linkDataArray
+          linkDataArray: model.linkDataArray
 
         };
 
         // Convierte el objeto del diagrama en JSON y guárdalo en el estado o variable
-              // @ts-ignore
+        // @ts-ignore
 
         setData(diagramData);
         // Cancela el envío anterior y programa un nuevo envío después de 500ms
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
-                // @ts-ignore
+          // @ts-ignore
 
           socket.emit('actualizarDiagrama', { id, data: { nodeDataArray: model.nodeDataArray, linkDataArray: model.linkDataArray } });
         }, 500);
@@ -174,143 +172,6 @@ const Reunion: React.FC = () => {
 
     console.log("Model changed:", obj);
   };
-  interface UMLView {
-    _type: string;
-    _id: string;
-    _parent?: Parent;
-    name: string;
-    defaultDiagram?: boolean;
-    ownedElements?: UMLView[];
-    ownedViews?: UMLView[];
-    // Otros campos si es necesario
-  }
-
-  interface StarUMLData {
-    _type: string;
-    _id: string;
-    name: string;
-    ownedElements: UMLView[];
-  }
-
-  interface Parent {
-    $ref: string;
-  }
-  const exportDiagramToStarUMLFormat = (): any => {
-    const diagram = diagramRef.current.getDiagram();
-    const nodes = diagram.nodes;
-    const starUMLData: StarUMLData = {
-      "_type": "Project",
-      "_id": generateUniqueId(),
-      "name": "Untitled",
-      "ownedElements": [
-        {
-          "_type": "UMLModel",
-          "_id": generateUniqueId(),
-          "_parent": {
-            "$ref": "AAAAAAFF+h6SjaM2Hec="
-          },
-          "name": "Model",
-          "ownedElements": [{
-            "_type": "UMLClassDiagram",
-            "_id": "AAAAAAFF+qBtyKM79qY=",
-            "_parent": {
-              "$ref": "AAAAAAFF+qBWK6M3Z8Y="
-            },
-            "name": "Main",
-            "defaultDiagram": true
-          }]
-        },
-        {
-          "_type": "UMLCollaboration",
-          "_id": "AAAAAAGLJAOQRVhkBy0=",
-          "_parent": {
-            "$ref": "AAAAAAFF+h6SjaM2Hec="
-          },
-          "name": "Collaboration1",
-          "ownedElements": [
-            {
-              "_type": "UMLInteraction",
-              "_id": "AAAAAAGLJAOQRVhl3xg=",
-              "_parent": {
-                "$ref": "AAAAAAGLJAOQRVhkBy0="
-              },
-              "name": "Interaction1",
-              "ownedElements": [
-                {
-                  "_type": "UMLSequenceDiagram",
-                  "_id": "AAAAAAGLJAOQRVhm/Og=",
-                  "_parent": {
-                    "$ref": "AAAAAAGLJAOQRVhl3xg="
-                  },
-                  "name": "SequenceDiagram1",
-                  "ownedViews": []
-                }]
-            }
-          ]
-        },
-      ]
-    };
-
-
-    // const nodeIDMap: { [key: string]: string } = {};
-
-    nodes.each(node => {
-      const umlClassDiagram = {
-        "_type": "UMLSeqLifelineView",
-        "_id": generateUniqueId(),
-        "name": node.text,
-        "ownedViews": []
-      };
-
-      starUMLData.ownedElements[1].ownedElements[0].ownedElements[0].ownedViews.push(umlClassDiagram);
-
-      const umlSeqLifelineView = {
-        "_type": "UMLSeqLifelineView",
-        "_id": generateUniqueId(),
-        "_parent": {
-          "$ref": umlClassDiagram._id
-        },
-        "model": {
-          "$ref": umlClassDiagram._id
-        },
-        "subViews": [
-          {
-            "_type": "UMLNameCompartmentView",
-            "_id": generateUniqueId(),
-            "_parent": {
-              "$ref": umlClassDiagram._id
-            },
-            "model": {
-              "$ref": umlClassDiagram._id
-            },
-            "subViews": [
-              {
-                "_type": "LabelView",
-                "_id": generateUniqueId(),
-                "_parent": {
-                  "$ref": umlClassDiagram._id
-                },
-                "font": "Arial;13;1",
-                "left": 0,
-                "top": 0,
-                "width": 100,
-                "height": 20,
-                "text": node.text
-              }
-            ]
-          }
-        ]
-      };
-
-      umlClassDiagram.ownedViews.push(umlSeqLifelineView);
-    });
-
-
-    // Ahora starUMLData contiene la estructura de datos de tus nodos en el formato de StarUML
-    // console.log(JSON.stringify(starUMLData, null, 2));
-    return JSON.stringify(starUMLData, null, 2);
-  };
-
   const downloadJSON = (data, filename) => {
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -327,9 +188,10 @@ const Reunion: React.FC = () => {
     if (diagramRef.current) {
       const diagram = diagramRef.current.getDiagram();
       if (diagram) {
-        const starUMLData = exportDiagramToStarUMLFormat();
-        console.log('starumnl : ', starUMLData);
-        downloadJSON(starUMLData, "staruml_data.mdj");
+        const eaCode = EAConverter.converterToEa(diagram.model.nodeDataArray,
+          // @ts-ignore
+          diagram.model.linkDataArray);
+        downloadJSON(eaCode, "ea_data.xmi");
       }
     }
   };
@@ -388,7 +250,7 @@ const Reunion: React.FC = () => {
         // Enviar los datos al backend para la conversión a Java
         const requestData = {
           nodeDataArray: diagram.model.nodeDataArray,
-                // @ts-ignore
+          // @ts-ignore
 
           linkDataArray: diagram.model.linkDataArray
         };
@@ -469,7 +331,7 @@ const Reunion: React.FC = () => {
         // Enviar los datos al backend para la conversión a Java
         const requestData = {
           nodeDataArray: diagram.model.nodeDataArray,
-                // @ts-ignore
+          // @ts-ignore
 
           linkDataArray: diagram.model.linkDataArray
         };
@@ -562,7 +424,7 @@ const Reunion: React.FC = () => {
       />
       <button onClick={addNode}>Add Node</button>
       <div>
-        <button onClick={handleDownloadButtonClick}>Exportar Diagrama</button>
+        <button onClick={handleDownloadButtonClick}>Exportar Diagrama a .EA</button>
       </div>
       <div>
         <button onClick={downloadSvg}>Descargar Imagen SVG</button>
