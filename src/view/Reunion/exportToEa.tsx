@@ -162,8 +162,6 @@ export class EAConverter {
         eaCode += `	<XMI.difference/>\n`;
         eaCode += `<XMI.extensions xmi.extender="Enterprise Architect 2.5"/>\n`;
         eaCode += `</XMI>\n`;
-        const serializer = new XMLSerializer();
-        const formattedXml = serializer.serializeToString(new DOMParser().parseFromString(eaCode, 'text/xml'));
 
         return eaCode;
     }
