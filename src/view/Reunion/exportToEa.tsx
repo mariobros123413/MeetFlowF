@@ -8,12 +8,12 @@ export class EAConverter {
         return Math.floor(Math.random() * 1000000).toString();
     }
 
-    static generateTaggedValues(tags:Record<string, string>) {
+    static generateTaggedValues(tags: Record<string, string>) {
         return Object.entries(tags)
             .map(([tag, value]) => `<UML:TaggedValue tag="${tag}" value="${value}"/>`)
             .join('');
     }
-    static converterToEa(nodeDataArray:any[], _linkDataArray:any[]):string {
+    static converterToEa(nodeDataArray: any[], _linkDataArray: any[]): string {
         let eaCode = '';
         eaCode += `<?xml version="1.0" encoding="windows-1252"?>\n`;
         eaCode += `<XMI xmi.version="1.1" xmlns:UML="omg.org/UML1.3" timestamp="2023-10-16 22:50:15">\n`;
@@ -26,7 +26,7 @@ export class EAConverter {
         eaCode += `<XMI.content>\n`;
         eaCode += `<UML:Model name="EA Model" xmi.id="MX_EAID_${EAConverter.generateUniqueId()}">\n`;
         eaCode += `<UML:Namespace.ownedElement>\n`;
-        eaCode += `<UML:Class name="EARootClass" xmi.id="EAID_${EAConverter.generateUniqueId()}" isRoot="true" isLeaf="false" isAbstract="false"/>\n`;
+        eaCode += `<UML:Class name="EARootClass" xmi.id="EAID_11111111_5487_4080_A7F4_41526CB0AA00" isRoot="true" isLeaf="false" isAbstract="false"/>\n`;
 
         eaCode += `<UML:Package name="Model" xmi.id="EAID_${EAConverter.generateUniqueId()}" isRoot="true" isLeaf="false" isAbstract="false" visibility="public">`;
         eaCode += `<UML:ModelElement.taggedValue>`;
@@ -37,7 +37,12 @@ export class EAConverter {
         eaCode += `<UML:TaggedValue tag="isprotected" value="FALSE"/>`;
         eaCode += `<UML:TaggedValue tag="usedtd" value="FALSE"/>`;
         eaCode += `<UML:TaggedValue tag="logxml" value="FALSE"/>`;
+        eaCode += `<UML:TaggedValue tag="tpos" value="0"/>`;
         eaCode += `<UML:TaggedValue tag="packageFlags" value="CRC=0;isModel=1;"/>`;
+        eaCode += `<UML:TaggedValue tag="batchsave" value="0"/>`;
+        eaCode += `<UML:TaggedValue tag="batchload" value="0"/>`;
+        eaCode += `<UML:TaggedValue tag="ea_stype" value="Public"/>`;
+        eaCode += `<UML:TaggedValue tag="tpos" value="0"/>`;
         eaCode += `</UML:ModelElement.taggedValue>`;
 
         eaCode += `<UML:Namespace.ownedElement>`;
@@ -68,32 +73,58 @@ export class EAConverter {
         eaCode += ` </UML:ModelElement.taggedValue>`;
 
         eaCode += `</UML:ClassifierRole>`;
+        eaCode += ` <UML:ClassifierRole name="Use Case Model" xmi.id="EMX_EAID_${EAConverter.generateUniqueId()}" visibility="public" base="EAID_11111111_5487_4080_A7F4_41526CB0AA00">`;
+
+        eaCode += ` <UML:ModelElement.taggedValue>`;
+        eaCode += ` <UML:TaggedValue tag="isAbstract" value="false" />`;
+        eaCode += ` <UML:TaggedValue tag="isSpecification" value="false" />`;
+        eaCode += ` <UML:TaggedValue tag="ea_stype" value="Package" />`;
+        eaCode += ` <UML:TaggedValue tag="ea_ntype" value="0" />`;
+        eaCode += ` <UML:TaggedValue tag="isActive" value="false" />`;
+        eaCode += ` <UML:TaggedValue tag="package" value="EAPK_D9D8864A_2E62_49f4_84D5_23276CF33E74" />`;
+        eaCode += ` <UML:TaggedValue tag="date_created" value="2023-10-16 16:26:10" />`;
+        eaCode += ` <UML:TaggedValue tag="date_modified" value="2023-10-17 02:38:19" />`;
+        eaCode += ` <UML:TaggedValue tag="tagged" value="0" />`;
+        eaCode += ` <UML:TaggedValue tag="package2" value="EAID_6EE9AF8D_A279_46e0_8BA8_ED712C309EF7" />`;
+        eaCode += ` <UML:TaggedValue tag="package_name" value="Model" />`;
+        eaCode += ` <UML:TaggedValue tag="phase" value="1.0" />`;
+        eaCode += ` <UML:TaggedValue tag="author" value="jmari" />`;
+        eaCode += ` <UML:TaggedValue tag="complexity" value="1" />`;
+        eaCode += ` <UML:TaggedValue tag="status" value="Proposed" />`;
+        eaCode += ` <UML:TaggedValue tag="tpos" value="3" />`;
+        eaCode += ` <UML:TaggedValue tag="ea_localid" value="15" />`;
+        eaCode += ` <UML:TaggedValue tag="ea_eleType" value="package" />`;
+        eaCode += ` <UML:TaggedValue tag="style" value="BackColor=-1;BorderColor=-1;BorderWidth=-1;FontColor=-1;VSwimLanes=1;HSwimLanes=1;BorderStyle=0;" />`;
+        eaCode += ` </UML:ModelElement.taggedValue>`;
+
+        eaCode += `</UML:ClassifierRole>`;
+
         eaCode += `</UML:Namespace.ownedElement>`;
         eaCode += `<UML:Collaboration.interaction/>`;
         eaCode += `</UML:Collaboration>`;
 
-        eaCode += `<UML:Package name="Use Case Model" xmi.id="EAPK_${EAConverter.generateUniqueId()}" isRoot="false" isLeaf="false" isAbstract="false" visibility="public">`;
+        eaCode += `<UML:Package name="Use Case Model" xmi.id="EAID_11111111_5487_4080_A7F4_41526CB0AA00" isRoot="false" isLeaf="false" isAbstract="false" visibility="public">`;
         eaCode += `<UML:ModelElement.taggedValue>`;
         eaCode += `${EAConverter.generateTaggedValues({
-            parent:'EAPK_D9D8864A_2E62_49f4_84D5_23276CF33E74',
-            ea_package_id:'2',
-            created:'2023-10-16 16:26:10',
-            modified:'2023-10-16 16:26:11',
-            iscontrolled:'FALSE',
-            lastloaddate:'2023-10-16 16:26:10',
-            lastsavedate:'2023-10-16 16:26:10',
-            isprotected:'FALSE',
-            usedtd:'FALSE',
-            logxml:'FALSE',
-            tpos:'3',
-            packageFlags:'isModel=1;VICON=1;CRC=0;',
-            batchsave:'0',
-            batchload:'0',
-            phase:'1.0',
-            status:'Proposed',
-            author:'jmari',
-            complexity:'1',
-            ea_stype:'Public',
+            parent: 'EAPK_D9D8864A_2E62_49f4_84D5_23276CF33E74',
+            ea_package_id: '2',
+            created: '2023-10-16 16:26:10',
+            modified: '2023-10-16 16:26:11',
+            iscontrolled: 'FALSE',
+            lastloaddate: '2023-10-16 16:26:10',
+            lastsavedate: '2023-10-16 16:26:10',
+            isprotected: 'FALSE',
+            usedtd: 'FALSE',
+            logxml: 'FALSE',
+            tpos: '3',
+            packageFlags: 'isModel=1;VICON=1;CRC=0;',
+            batchsave: '0',
+            batchload: '0',
+            phase: '1.0',
+            status: 'Proposed',
+            author: 'jmari',
+            complexity: '1',
+            ea_stype: 'Public',
         })}\n`;
         eaCode += `<UML:TaggedValue tag="tpos" value="3"/>\n`; //ultimo dentro I
         eaCode += `</UML:ModelElement.taggedValue>\n`;
