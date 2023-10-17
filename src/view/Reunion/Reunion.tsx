@@ -81,13 +81,13 @@ const Reunion: React.FC = () => {
         // Si la solicitud es exitosa, actualiza el estado con los datos del diagrama
 
         const tipo = (location.state && location.state.tipo) || 'default'; // Asigna 'default' si tipo es null o undefined
-        const usuarioId = (location.state && location.state.usuarioId) || 'default'; // Asigna 'default' si tipo es null o undefined
+        // const usuarioId = (location.state && location.state.usuarioId) || 'default'; // Asigna 'default' si tipo es null o undefined
         console.log("tipo: ", tipo)
         if (tipo === 'unirse' || tipo === 'nueva' || (location.state && location.state.usuarioId === response.data.usuarioId)) {
-          await axios.post(`https://meetflow-production.up.railway.app/colaborador/agregar`, { //Registramos al usuario como colaborador
-            usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
-            reunionId: id, // ID de la reunión a la que se está uniendo el usuario
-          });
+          // await axios.post(`https://meetflow-production.up.railway.app/colaborador/agregar`, { //Registramos al usuario como colaborador
+          //   usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
+          //   reunionId: id, // ID de la reunión a la que se está uniendo el usuario
+          // });
           setData(response.data);
         } else {
           navigate('/')
