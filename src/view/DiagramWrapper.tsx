@@ -195,7 +195,7 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
       time: number;
       constructor() {
         super();
-        number:0 ;
+        number: 0;
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
         const $ = go.GraphObject.make;
@@ -439,6 +439,24 @@ const DiagramWrapper: React.FC<DiagramWrapperProps> = ({
         new go.Binding("text", "text").makeTwoWay()
       )
     );
+
+    diagram.addDiagramListener("ObjectDoubleClicked", function (event) {
+      var diagramEvent = event.diagram.selection.first();
+
+      // Verificar si el objeto seleccionado es un nodo
+      var selectedObject = diagramEvent;
+      console.log(selectedObject);
+      // Obtener el nuevo nombre del usuario (podrías mostrar un cuadro de diálogo para que el usuario ingrese un nuevo nombre)
+      // console.log(diagramEvent.fc)
+      var nuevoNombre = prompt("Ingrese el nuevo nombre del nodo:", selectedObject.data.text);
+      if (nuevoNombre !== null) {
+        // Actualizar el nombre del nodo en el modelo de datos
+        diagram.startTransaction("CambiarNombreNodo");
+        console.log("electedObject.data : ", selectedObject.data)
+        diagram.model.setDataProperty(selectedObject.data, "text", nuevoNombre);
+        diagram.commitTransaction("CambiarNombreNodo");
+      }
+    });
 
     return diagram;
   };

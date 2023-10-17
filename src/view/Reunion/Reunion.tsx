@@ -88,6 +88,7 @@ const Reunion: React.FC = () => {
           //   usuarioId: usuarioId, // Asegúrate de tener el ID del usuario en el estado de tu componente
           //   reunionId: id, // ID de la reunión a la que se está uniendo el usuario
           // });
+          console.log('response.data : ', response.data)
           setData(response.data);
         } else {
           navigate('/')
