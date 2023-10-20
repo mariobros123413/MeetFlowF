@@ -84,7 +84,7 @@ const Posts: React.FC = () => {
           socket.emit('unirseReunion', { codigoReunion, password, usuarioId : user.id });
           // Manejar la respuesta del servidor cuando se entra en la reunión
           socket.on('unirseReunionExitoso', (data) => {
-            // console.log('data.diagrama.contenido : ', data);
+           console.log('data.diagrama.contenido : ', data);
 
             // const diagramaData = JSON.parse(data.diagrama.contenido);
 

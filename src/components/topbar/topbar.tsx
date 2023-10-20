@@ -18,7 +18,9 @@ const Topbar: React.FC = () => {
   };
   return (
     <div className="top">
-      <div className="topLeft">{/* Contenido del lado izquierdo de la barra superior */}</div>
+      <div className="topLeft">
+        {/* Contenido del lado izquierdo de la barra superior */}
+      </div>
       <div className="topRight">
         <ul className="topList">
           <li className="topListItem">
@@ -27,29 +29,24 @@ const Topbar: React.FC = () => {
             </Link>
           </li>
           <li className="topListItem">
-            <Link className="link, topListItem" to="/diagramas">
+            <Link className="link topListItem" to="/diagramas">
               Tus Diagramas
             </Link>
           </li>
           <li className="topListItem">Sobre Mí</li>
           <li className="topListItem">Contáctame</li>
-        </ul>
-      </div>
-      <div className="topRight">
-        {isAuthenticated && token ? (
-          <div className="">
-            <ul className="topList">
+          {isAuthenticated && token ? (
+            <>
               {user && (
-                <li className="topListItem" style={{ marginTop: '25px', cursor: 'text' }}>
+                <li className="topListItem" style={{ cursor: 'text' }}>
                   {user.nombre} {user.apellido}
                 </li>
               )}
-
               <li>
                 <Link className="link" to="/settings">
                   <img
-                    className="topImg" style={{ marginTop: '17px' }}
-                    src="https://images.pexels.com/photos/1858175/pexels-photo-1858175.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+                    className="topImg"
+                    src=""
                     alt=""
                   />
                 </Link>
@@ -59,22 +56,22 @@ const Topbar: React.FC = () => {
                   Cerrar Sesión
                 </button>
               </li>
-            </ul>
-          </div>
-        ) : (
-          <ul className="topList">
-            <li className="topListItem">
-              <Link className="link" to="/login">
-                Iniciar Sesión
-              </Link>
-            </li>
-            <li className="topListItem">
-              <Link className="link" to="/register">
-                Crear Cuenta
-              </Link>
-            </li>
-          </ul>
-        )}
+            </>
+          ) : (
+            <>
+              <li className="topListItem">
+                <Link className="link" to="/login">
+                  Iniciar Sesión
+                </Link>
+              </li>
+              <li className="topListItem">
+                <Link className="link" to="/register">
+                  Crear Cuenta
+                </Link>
+              </li>
+            </>
+          )}
+        </ul>
         <i className="topSearchIcon fas fa-search"></i>
       </div>
     </div>

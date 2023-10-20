@@ -63,7 +63,7 @@ ul li a {
     background-position: center;
     text-align: center;
     padding: 5% 0;
-    color: #085659;
+    color: #e92875;
 }
 
 h1 {
@@ -78,7 +78,7 @@ p {
 }
 
 button {
-    background-color: #0199a1;
+    background-color: #ff66a3;
     color: #fff;
     border: none;
     padding: 15px 30px;
@@ -91,7 +91,7 @@ button {
 }
 
 button:hover {
-    background-color: #04292a;
+    background-color: #ff66a3;
 }
 
 
@@ -143,5 +143,5 @@ input[type="text"]:focus {
     right: 10px;
     font-size: 20px;
     cursor: pointer;
-    color: #085659; /* Color de texto */
+    color: #e21f6d; /* Color de texto */
   }  

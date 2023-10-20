@@ -1,7 +1,7 @@
 import * as go from "gojs";
 import { saveAs } from 'file-saver'; // Para descargar el archivo
 import { useNavigate } from 'react-router-dom';
-
+import "./reunion.css";
 import { useEffect, useRef, useState } from "react";
 import DiagramWrapper from "../DiagramWrapper";
 import { ReactDiagram } from "gojs-react";
@@ -66,6 +66,7 @@ const Reunion: React.FC = () => {
   // const { diagramaModel } = location.state.diagramaModel ?? '';
   const { id, codigo } = useParams();
   const [data, setData] = useState(initialData);
+  const [password, setPassword] = useState("");
   // const [reunionTipo, setReunionTipo] = useState('nueva'); // Por defecto, es una reunión nueva
   // const password  = location.state.password ?? '';
   const [nextNodeX, setNextNodeX] = useState(400);
@@ -89,7 +90,8 @@ const Reunion: React.FC = () => {
           //   reunionId: id, // ID de la reunión a la que se está uniendo el usuario
           // });
           console.log('response.data : ', response.data)
-          setData(response.data);
+          setData(response.data.contenido);
+          setPassword(response.data.passwordReunion);
         } else {
           navigate('/')
         }
@@ -414,7 +416,10 @@ const Reunion: React.FC = () => {
   <input type="file" accept=".gojs" onChange={handleUploadFile} key={Math.random()} />
 
   return (
-    <div>
+
+
+
+    <div className="diag" >
       <DiagramWrapper
         diagramRef={diagramRef}
         nodeDataArray={data.nodeDataArray}
@@ -423,35 +428,46 @@ const Reunion: React.FC = () => {
         onModelChange={handleModelChange}
       // onNodeDoubleClicked={handleNodeDoubleClicked}
       />
-      <button onClick={addNode}>Add Node</button>
-      <div>
-        <button onClick={handleDownloadButtonClick}>Exportar Diagrama a .EA</button>
+      <div className="buttons-container">
+        <button onClick={addNode}>Add Node</button>
+        <div>
+          <button onClick={handleDownloadButtonClick}>Exportar Diagrama a .EA</button>
+        </div>
+        <div>
+          <button onClick={downloadSvg}>Descargar Imagen SVG</button>
+        </div>
+        <div>
+          <button onClick={handleConvertJavaButtonClick}>Convertir a Java</button>
+        </div>
+        <div>
+          <button onClick={handleConvertPythonButtonClick}>Convertir a Python</button>
+        </div>
+        <div>
+          <button onClick={handleConvertJavaScriptButtonClick}>Convertir a JavaScript</button>
+        </div>
+        <div>
+          <button onClick={handleGojsDownloadButtonClick}>Descargar Diagrama GoJs</button>
+        </div>
+        <label className="file-label">
+          Elegir Archivo
+          <input
+            type="file"
+            className="file-input"
+            onChange={handleUploadFile}
+            accept=".gojs"
+          />
+        </label>
+        
       </div>
-      <div>
-        <button onClick={downloadSvg}>Descargar Imagen SVG</button>
-      </div>
-      <div>
-        <button onClick={handleConvertJavaButtonClick}>Convertir a Java</button>
-      </div>
-      <div>
-        <button onClick={handleConvertPythonButtonClick}>Convertir a Python</button>
-      </div>
-      <div>
-        <button onClick={handleConvertJavaScriptButtonClick}>Convertir a JavaScript</button>
-      </div>
-      <div>
-        <button onClick={handleGojsDownloadButtonClick}>Descargar Diagrama GoJs</button>
-      </div>
-      <input type="file" accept=".gojs" onChange={handleUploadFile} key={Math.random()} />
-
       <div>
         Datos de la Reunión:
         <ul>
           <li>Codigo de la Reunión: {codigo} </li>
-          {/* {password && <li>Contraseña de la Reunión: {password}</li>} */}
+          {password && <li>Contraseña de la Reunión: {password}</li>}
         </ul>
       </div>
     </div>
+
   );
 };
 export default Reunion;

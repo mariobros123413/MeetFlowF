@@ -1,5 +1,5 @@
 .login {
-  height: calc(100vh - 50px);
+  height: calc(100vh );
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,7 +8,7 @@
       rgba(255, 255, 255, 0.5),
       rgba(255, 255, 255, 0.5)
     ),
-    url("https://images.pexels.com/photos/768473/pexels-photo-768473.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+    url("https://c8.alamy.com/compes/hgp5bk/rosa-plaza-geometrica-abstracta-brillante-diagrama-3d-bar-patron-ladrillos-perspectiva-vertical-fondo-de-pantalla-grandes-barras-detallada-textura-macro-hgp5bk.jpg");
   background-size: cover;
 }
 
@@ -40,7 +40,7 @@
 .loginButton {
   margin-top: 20px;
   cursor: pointer;
-  background-color: lightcoral;
+  background-color: #ff66a3;
   color: white;
   padding: 10px;
   border: none;
@@ -52,10 +52,24 @@
   position: absolute;
   top: 60px;
   right: 20px;
-  background-color: teal;
+  background-color: #570928;
   cursor: pointer;
   padding: 10px;
   border: none;
   color: white;
   border-radius: 10px;
 }
+/* Otros estilos CSS existentes */
+
+a {
+  text-decoration: none; /* Elimina los bordes subrayados de los enlaces */
+  color: white; /* Establece el color del texto en blanco */
+}
+
+/* Estilo para los enlaces al pasar el mouse (opcional) */
+a:hover {
+  text-decoration: underline; /* Agrega un subrayado al pasar el mouse, si lo deseas */
+  color: gray; /* Cambia el color del texto al pasar el mouse, si lo deseas */
+}
+
+/* Otros estilos CSS existentes */

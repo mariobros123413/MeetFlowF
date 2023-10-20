@@ -1,37 +1,47 @@
+/* topbar.css */
+/* topbar.css */
 .top {
-  width: 100%;
-  height: 50px;
-  background-color: white;
-  position: sticky;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px; /* Ancho fijo del Topbar */
+  height: 100vh; /* Altura completa de la ventana */
+  background-color: #ff99cc;
+  color: #fff;
+  position: fixed;
   top: 0;
-  display: flex;
-  align-items: center;
+  left: 87%; /* Margen izquierdo para mover el Topbar hacia la derecha */
   z-index: 999;
-  font-family: Bookman, URW Bookman L, serif	;
-  background-color: #01696e;
-  color: #ffffff; /* Debes cambiar esto a #ffffff para el color blanco */
+  padding: 20px 0;
 }
 
-.topLeft,
-.topRight {
-  flex: 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Resto de tu estilo CSS... */
 
-.topIcon {
-  font-size: 20px;
-  margin-right: 10px;
-  color: #444;
-  cursor: pointer;
-}
 
-.topCenter {
-  flex: 6;
+.top:hover {
+  width: 200px;
+  padding: 20px;
 }
 
 .topList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.topListItem {
+  margin-bottom: 20px;
+}
+
+.topListItem:last-child {
+  margin-bottom: 0;
+}
+
+.link {
+  text-decoration: none;
+  color: #fff;
+  font-size: 16px;
   display: flex;
   justify-content: center;
   margin: 0px;
@@ -39,55 +49,31 @@
   list-style: none;
 }
 
-.topListItem {
-  margin-right: 20px;
-  font-size: 18px;
-  font-weight: 300;
-  cursor: pointer;
+.link:hover {
+  text-decoration: underline;
+  color: gray;
 }
 
-.topListItem:hover{
-    color: gray;
-}
-
-.topImg {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 15px;
-  cursor: pointer;
-}
-
-a {
-  text-decoration: none; /* Elimina los bordes de Link */
-  font-family: 'MiFuenteElegante', sans-serif; /* Usa tu fuente personalizada y luego una fuente de respaldo */
-  font-size: 16px; /* Tamaño de fuente */
-  color: #63a2a5; /* Color de texto personalizado */
-}
-
-/* Estilo para los enlaces al pasar el mouse (puedes personalizar esto según tus preferencias) */
-a:hover {
-  text-decoration: underline; /* Agrega subrayado al pasar el mouse si lo deseas */
-  color: gray; /* Color de texto personalizado al pasar el mouse */
-}
-
-/* Define un estilo para el botón de cerrar sesión */
 .topLogoutButton {
-  background-color: #085659; /* Color de fondo */
-  color: white; /* Color de texto */
-  border: none; /* Elimina el borde */
-  padding: 10px 20px; /* Espaciado interno (ajusta según sea necesario) */
-  font-size: 16px; /* Tamaño de fuente */
-  cursor: pointer; /* Cambia el cursor al pasar el mouse */
-  border-radius: 5px; /* Bordes redondeados */
-  font-family: 'MiFuenteElegante', sans-serif; /* Usa tu fuente personalizada y luego una fuente de respaldo */
-  transition: background-color 0.3s, color 0.3s; /* Transición suave al pasar el mouse */
+  background-color: #ff66a3;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
 }
 
-/* Cambia los colores al pasar el mouse */
 .topLogoutButton:hover {
-  background-color: #04292a; /* Color de fondo al pasar el mouse */
-  color: white; /* Color de texto al pasar el mouse */
+  background-color: #e64d87;
 }
 
+.topSearchIcon {
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+}

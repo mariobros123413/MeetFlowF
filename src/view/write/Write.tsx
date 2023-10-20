@@ -117,7 +117,7 @@ const Write: React.FC = () => {
         {/* Renderizar tarjetas de reuniones */}
         {filteredReuniones.map((reunion: any) => (
           <div key={reunion.id} style={{ margin: '15px' }}>
-            <Card sx={{ maxWidth: 345, border: '1px solid #085659' }}>
+            <Card sx={{ maxWidth: 345, border: '1px solid #ff66a3' }}>
               <CustomCardMedia svgString={reunion.svg} alt="Descripción alternativa de la imagen SVG" title="Título de la imagen" />
 
               <CardContent>
